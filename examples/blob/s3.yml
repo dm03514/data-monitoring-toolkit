@@ -1,0 +1,8 @@
+
+storage:
+  backend: s3
+  config:
+    signature_version: UNSIGNED
+  targets:
+    - bucket: dataforgood-fb-data
+      key: hrsl-cogs/hrsl_elderly_60_plus/
