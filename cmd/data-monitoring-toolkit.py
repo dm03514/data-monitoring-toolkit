@@ -3,7 +3,7 @@ from datadog import initialize, statsd
 import yaml
 
 from dmt import checks
-from dmt.sources import s3
+from dmt.sources import s3, postgres
 
 
 def init_logging():
@@ -40,18 +40,32 @@ def init_check(cli_args):
             source=source
         )
 
+    elif cli_args['type'] == 'freshness':
+
+        if cli_args['db'] == 'postgres':
+            source = postgres.new_from_conf(
+                conn_string=cli_args['conn_string'],
+                conf=conf,
+            )
+
+        check = checks.Freshness(
+            metrics=statsd,
+            conf=conf,
+            source=source,
+        )
+
     return check
 
 
 @click.command()
 @click.option(
-    '--connection-string',
+    '--conn-string',
     help='connection string for the db'
 )
 @click.option(
     '--db',
-    type=click.Choice(['s3']),
-    default='s3',
+    type=click.Choice(['s3', 'postgres']),
+    default='postgres',
     help='which db backend'
 )
 @click.option(
@@ -61,7 +75,7 @@ def init_check(cli_args):
 )
 @click.option(
     '--type',
-    type=click.Choice(['storage']),
+    type=click.Choice(['storage', 'freshness']),
     help='check type, need to figure out clean subcommands'
 )
 def main(**kwargs):
@@ -72,4 +86,4 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
-    main()
+    main(auto_envvar_prefix='DMT')

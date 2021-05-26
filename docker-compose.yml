@@ -13,4 +13,4 @@ services:
         max-size: 10m
         max-file: "3"
     volumes:
-      - ./test/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./fixtures/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
