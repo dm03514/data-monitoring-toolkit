@@ -15,31 +15,35 @@ class Freshness:
         self.source = source
 
     def execute(self):
-        targets = self.conf['freshness']['targets']
+        targets = self.conf["freshness"]["targets"]
         for target in targets:
             last_update = self.source.freshness(target)
             self._emit(target, last_update)
 
-    def _emit(self, target, last_update):
-        now = datetime.utcnow()
+    def _emit(self, target, last_update, now_fn=datetime.utcnow):
+        now = now_fn()
         diff = now - last_update
-        logger.info('freshness table: {}.{}.{}, total_seconds: {}'.format(
-            target['database'],
-            target['schema'],
-            target['table'],
-            diff.total_seconds(),
-        ))
-
-        tags = [
-            'db:{}'.format(target['database']),
-            'schema:{}'.format(target['schema']),
-            'table:{}'.format(target['table']),
-        ]
-        tags.extend(target.get('tags', []))
+        logger.info(
+            "freshness table: {}.{}.{}, total_seconds: {}".format(
+                target["database"],
+                target["schema"],
+                target["table"],
+                diff.total_seconds(),
+            )
+        )
 
         self.metrics.gauge(
-            'dmt.freshness.table.total_seconds',
+            "dmt.freshness.table.total_seconds",
             diff.total_seconds(),
-            tags,
+            self._tags(target),
             1,
         )
+
+    def _tags(self, target):
+        tags = [
+            "db:{}".format(target["database"]),
+            "schema:{}".format(target["schema"]),
+            "table:{}".format(target["table"]),
+        ]
+        tags.extend(target.get("tags", []))
+        return tags

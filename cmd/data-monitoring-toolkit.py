@@ -1,9 +1,14 @@
+import logging
+
 import click
 from datadog import initialize, statsd
 import yaml
 
 from dmt import checks
 from dmt.sources import s3, postgres
+
+
+logger = logging.getLogger(__name__)
 
 
 def init_logging():
@@ -22,6 +27,7 @@ def init_logging():
 
 def init_check(cli_args):
     conf = yaml.load(cli_args['conf'], Loader=yaml.FullLoader)
+    logger.info('conf: {}'.format(conf))
 
     options = {
         "statsd_host": "127.0.0.1",
@@ -80,7 +86,6 @@ def init_check(cli_args):
 )
 def main(**kwargs):
     init_logging()
-    print('hi', kwargs)
     check = init_check(kwargs)
     return check.execute()
 

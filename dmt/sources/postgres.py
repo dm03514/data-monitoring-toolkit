@@ -20,12 +20,9 @@ class Postgres:
         self.client = client
 
     def freshness(self, target) -> TableFreshness:
-        sql = 'SELECT max({}) from {}.{}.{}'.format(
-            target['column'],
-            target['database'],
-            target['schema'],
-            target['table']
+        sql = "SELECT max({}) from {}.{}.{}".format(
+            target["column"], target["database"], target["schema"], target["table"]
         )
-        logger.info('Postgres.freshness: executed: {}'.format(sql))
+        logger.info("Postgres.freshness: executed: {}".format(sql))
         result = self.client.execute(sql)
         return result.first()[0]
